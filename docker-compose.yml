@@ -10,14 +10,32 @@ services:
       - /opt/openproject/static:/var/db/openproject
     expose:
       - 80
+      - 443
     environment:
       - SECRET_KEY_BASE=secret
+      - EMAIL_DELIVERY_METHOD=smtp
+      - SMTP_ADDRESS=smtp
+      - SMTP_PORT=25
+      - SMTP_DOMAIN=projects.altamir.io
+      - SMTP_AUTHENTICATION=none
   nginx: 
     image: nginx:latest
     restart: always
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - /etc/letsencrypt:/etc/letsencrypt
+      - ./certs:/opt/certs
     ports:
       - 80:80
       - 443:443
+  smtp:
+    image: namshi/smtp
+    restart: always
+    environment:
+      RELAY_DOMAINS: openproject
+      PORT: 25
+      MAILNAME: projects.altamir.io
+    expose:
+      - 25
+      - 465
+      - 587
